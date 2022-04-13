@@ -1,13 +1,14 @@
-const { BusinessController } = require("../controllers");
+const { BusinessController, AssetController } = require("../controllers");
+const { validatePostBusiness, validatePutBusiness } = require("../middleware/Business");
 
 const businessRouter = require("express").Router();
 
 businessRouter.get("/", BusinessController.findMany);
 businessRouter.get("/:id", BusinessController.findOneById);
 
-businessRouter.post("/", BusinessController.createOne);
+businessRouter.post("/", AssetController.uploadAssets, validatePostBusiness, BusinessController.createOne);
 
-businessRouter.put("/:id", BusinessController.updateOneById);
+businessRouter.put("/:id", AssetController.uploadAssets, validatePutBusiness, BusinessController.updateOneById);
 
 businessRouter.delete("/:id", BusinessController.deleteOneById);
 

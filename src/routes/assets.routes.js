@@ -9,6 +9,6 @@ assetsRouter.post("/", AssetController.createOne);
 
 assetsRouter.put("/:id", AssetController.updateOneById);
 
-assetsRouter.delete("/:id", AssetController.deleteOneById);
+assetsRouter.delete("/:id", AssetController.removeOneById);
 
 module.exports = assetsRouter;
