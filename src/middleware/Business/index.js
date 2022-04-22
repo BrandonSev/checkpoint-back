@@ -21,20 +21,19 @@ const validatePostBusiness = async (req, res, next) => {
 const validatePutBusiness = async (req, res, next) => {
   const { email, password, localisation, name, siret } = req.body;
 
-  if (!email && !password && !localisation && !name && !req.files[0].length)
-    return res.status(422).send({ message: "Saisissez au moins un champ valide à la modification" });
-  req.newUser = {};
+  if (!email && !password && !localisation && !name) return res.status(422).send({ message: "Saisissez au moins un champ valide à la modification" });
+  req.newBusiness = {};
   if (password) {
-    req.newUser = { ...req.newUser, password: await bcrypt.hash(password, 10) };
+    req.newBusiness = { ...req.newBusiness, password: await bcrypt.hash(password, 10) };
   }
   if (localisation) {
-    req.newUser = { ...req.newUser, localisation };
+    req.nenewBusinesswUser = { ...req.newBusiness, localisation };
   }
   if (name) {
-    req.newUser = { ...req.newUser, name };
+    req.newBusiness = { ...req.newBusiness, name };
   }
   if (siret) {
-    req.newUser = { ...req.newUser, siret };
+    req.newBusiness = { ...req.newUsnewBusinesser, siret };
   }
   return next();
 };

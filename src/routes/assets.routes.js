@@ -1,6 +1,5 @@
-const { AssetController } = require("../controllers");
-
 const assetsRouter = require("express").Router();
+const { AssetController } = require("../controllers");
 
 assetsRouter.get("/", AssetController.findMany);
 assetsRouter.get("/:id", AssetController.findOneById);

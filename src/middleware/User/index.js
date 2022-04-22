@@ -83,10 +83,15 @@ const validatePutUser = async (req, res, next) => {
   if (resume_project) {
     req.newUser = { ...req.newUser, resume_project };
   }
-  if (req.files[0].length) {
-    req.newUser = { ...req.newUser, avatar: req.files[0].filename };
+  if (req.files[0]) {
+    req.newUser = { ...req.newUser, avatar: req.files[0].filename, avatar_created_at: new Date() };
   }
   return next();
 };
 
-module.exports = { validatePostUser, validatePutUser };
+const validatePutCvUser = (req, res, next) => {
+  req.newUser = { cv: req.files[0].filename, cv_created_at: new Date() };
+  next();
+};
+
+module.exports = { validatePostUser, validatePutUser, validatePutCvUser };

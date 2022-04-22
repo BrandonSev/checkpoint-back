@@ -12,7 +12,7 @@ class Business {
   }
 
   static findOneByEmail(email) {
-    const sql = "SELECT * FROM users WHERE email = ?";
+    const sql = "SELECT * FROM business WHERE email = ?";
     return connection.promise().query(sql, [email]);
   }
 

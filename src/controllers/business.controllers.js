@@ -1,4 +1,5 @@
-const { Business } = require("../models");
+const fs = require("fs");
+const { Business, Like } = require("../models");
 
 const findMany = async (req, res) => {
   try {
@@ -14,6 +15,15 @@ const findOneById = async (req, res) => {
   try {
     const [[results]] = await Business.findOneById(id);
     if (!results) return res.status(404).send("La société est introuvable");
+    return res.json(results);
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+};
+
+const findOneByIdWithLikes = async (req, res) => {
+  try {
+    const [results] = await Like.findAllByBusinessId(req.params.id);
     return res.json(results);
   } catch (err) {
     return res.status(500).send(err.message);
@@ -46,14 +56,18 @@ const updateOneById = async (req, res) => {
 
 const deleteOneById = async (req, res) => {
   try {
-    const [result] = await Business.deleteOneById(req.params.id);
-    if (result.affectedRows <= 0) {
+    const [[result]] = await Business.findOneById(req.params.id);
+    if (!result) {
       return res.status(404).send("La société est introuvable");
     }
+    fs.unlink(`assets/${result.filename}`, (err) => {
+      if (err) return res.status(500).send(err);
+      return true;
+    });
     return res.status(204).json("La société à bien été supprimé");
   } catch (err) {
     return res.status(500).send(err.message);
   }
 };
 
-module.exports = { findMany, findOneById, createOne, updateOneById, deleteOneById };
+module.exports = { findMany, findOneById, createOne, updateOneById, deleteOneById, findOneByIdWithLikes };

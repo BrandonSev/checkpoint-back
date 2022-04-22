@@ -92,4 +92,29 @@ const uploadAssets = (req, res, next) => {
   });
 };
 
-module.exports = { findMany, findOneById, createOne, updateOneById, removeOneById, uploadAssets };
+const uploadCv = (req, res, next) => {
+  const storage = multer.diskStorage({
+    destination: (_, file, cb) => {
+      cb(null, "assets");
+    },
+    filename: (_, file, cb) => {
+      cb(null, `${new Date().getTime()}-${file.originalname}`);
+    },
+  });
+  const upload = multer({ storage }).array("file", 10);
+
+  return upload(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).send(err.message);
+    }
+    if (err) {
+      return res.status(500).send(err.message);
+    }
+    if (req.body.data) {
+      req.body = JSON.parse(req.body.data);
+    }
+    return next();
+  });
+};
+
+module.exports = { findMany, findOneById, createOne, updateOneById, removeOneById, uploadAssets, uploadCv };

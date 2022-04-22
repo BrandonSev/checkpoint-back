@@ -1,7 +1,6 @@
+const likesRouter = require("express").Router();
 const { LikeController } = require("../controllers");
 const { validatePostLikes, validatePutLike } = require("../middleware/Like");
-
-const likesRouter = require("express").Router();
 
 likesRouter.get("/", LikeController.findMany);
 likesRouter.get("/:id", LikeController.findOneById);

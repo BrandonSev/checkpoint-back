@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, Like } = require("../models");
 
 const findMany = async (req, res) => {
   try {
@@ -33,6 +33,16 @@ const createOne = async (req, res) => {
   }
 };
 
+const findOneByIdWithlikes = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [results] = await Like.findAllByUserId(id);
+    return res.json(results);
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+};
+
 const updateOneById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -56,4 +66,4 @@ const deleteOneById = async (req, res) => {
   }
 };
 
-module.exports = { findMany, findOneById, createOne, updateOneById, deleteOneById };
+module.exports = { findMany, findOneById, createOne, updateOneById, deleteOneById, findOneByIdWithlikes };

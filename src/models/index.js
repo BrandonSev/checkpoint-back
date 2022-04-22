@@ -1,6 +1,6 @@
-const User = require("./user.models.js");
-const Business = require("./business.models.js");
-const Asset = require("./assets.models.js");
-const Like = require("./likes.models.js");
+const User = require("./user.models");
+const Business = require("./business.models");
+const Asset = require("./assets.models");
+const Like = require("./likes.models");
 
 module.exports = { User, Business, Asset, Like };

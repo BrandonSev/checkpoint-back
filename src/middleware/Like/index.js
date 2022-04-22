@@ -1,5 +1,3 @@
-const bcrypt = require("bcrypt");
-
 const validatePostLikes = async (req, res, next) => {
   const { users_id, business_id, type } = req.body;
   if (!users_id && !business_id && !type) return res.status(422).send({ message: "Tout les champs nécessaire sont requis" });
