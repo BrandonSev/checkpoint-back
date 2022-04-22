@@ -44,6 +44,8 @@
   },
   "homepage": "https://github.com/BrandonSev/express-sample#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "db-migrate-mysql": "^2.2.0",
     "dotenv": "^10.0.0",
@@ -54,6 +56,7 @@
     "eslint-plugin-jest": "^25.3.4",
     "eslint-plugin-prettier": "^4.0.0",
     "express": "^4.17.2",
+    "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.4",
     "mysql2": "^2.3.3"
   },

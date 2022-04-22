@@ -11,6 +11,11 @@ class Business {
     return connection.promise().query(sql, [id]);
   }
 
+  static findOneByEmail(email) {
+    const sql = "SELECT * FROM business WHERE email = ?";
+    return connection.promise().query(sql, [email]);
+  }
+
   static createOne(business) {
     const sql = "INSERT INTO business SET ?";
     return connection.promise().query(sql, [business]);

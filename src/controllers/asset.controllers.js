@@ -1,20 +1,22 @@
+const multer = require("multer");
+const fs = require("fs");
 const { Asset } = require("../models");
 
 const findMany = async (req, res) => {
   try {
-    const [results] = await Asset.findMany();
-    return res.json(results);
+    const [result] = await Asset.findMany();
+    return res.status(200).send(result);
   } catch (err) {
     return res.status(500).send(err.message);
   }
 };
 
 const findOneById = async (req, res) => {
-  const { id } = req.params;
   try {
-    const [[results]] = await Asset.findOneById(id);
-    if (!results) return res.status(404).send("Le fichier est introuvable");
-    return res.json(results);
+    const { id } = req.params;
+    const [[result]] = await Asset.findOneById(id);
+    if (!result) return res.status(404).send();
+    return res.status(200).send(result);
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -22,12 +24,17 @@ const findOneById = async (req, res) => {
 
 const createOne = async (req, res) => {
   try {
-    const [result] = await Asset.createOne(req.newAsset);
-    const [[newAsset]] = await Asset.findOneById(result.insertId);
-    return res.status(201).json({
-      message: "Le fichier à bien été ajouté",
-      asset: newAsset,
+    const { owner_id } = req.body;
+    const arr = req.files.map(async (file) => {
+      const [newAsset] = await Asset.createOne({
+        filename: file.filename,
+        owner_id,
+      });
+      const [[asset]] = await Asset.findOneById(newAsset.insertId);
+      return asset;
     });
+    const result = await Promise.all(arr);
+    return res.status(201).send(result);
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -37,23 +44,77 @@ const updateOneById = async (req, res) => {
   try {
     const { id } = req.params;
     await Asset.updateOneById(req.newAsset, id);
-    const [[asset]] = await Asset.findOneById(id);
-    return res.status(200).json({ message: "Le fichier à bien été mise à jour", asset });
+    const [[newAsset]] = await Asset.findOneById(id);
+    return res.status(200).send(newAsset);
   } catch (err) {
     return res.status(500).send(err.message);
   }
 };
 
-const deleteOneById = async (req, res) => {
+const removeOneById = async (req, res) => {
   try {
-    const [result] = await Asset.deleteOneById(req.params.id);
-    if (result.affectedRows <= 0) {
-      return res.status(404).send("Le fichier est introuvable");
-    }
-    return res.status(204).json("Le fichier à bien été supprimé");
+    const { id } = req.params;
+    const [result] = await Asset.findOneById(id);
+    if (!result.length) return res.status(404).send();
+    await Asset.removeOneById(id);
+    fs.unlink(`assets/${result[0].filename}`, (err) => {
+      if (err) return res.status(500).send(err);
+      return true;
+    });
+    return res.status(204).send();
   } catch (err) {
     return res.status(500).send(err.message);
   }
 };
 
-module.exports = { findMany, findOneById, createOne, updateOneById, deleteOneById };
+const uploadAssets = (req, res, next) => {
+  const storage = multer.diskStorage({
+    destination: (_, file, cb) => {
+      cb(null, "assets");
+    },
+    filename: (_, file, cb) => {
+      cb(null, `${new Date().getTime()}-${file.originalname}`);
+    },
+  });
+  const upload = multer({ storage }).array("assets", 10);
+
+  return upload(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).send(err.message);
+    }
+    if (err) {
+      return res.status(500).send(err.message);
+    }
+    if (req.body.data) {
+      req.body = JSON.parse(req.body.data);
+    }
+    return next();
+  });
+};
+
+const uploadCv = (req, res, next) => {
+  const storage = multer.diskStorage({
+    destination: (_, file, cb) => {
+      cb(null, "assets");
+    },
+    filename: (_, file, cb) => {
+      cb(null, `${new Date().getTime()}-${file.originalname}`);
+    },
+  });
+  const upload = multer({ storage }).array("file", 10);
+
+  return upload(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).send(err.message);
+    }
+    if (err) {
+      return res.status(500).send(err.message);
+    }
+    if (req.body.data) {
+      req.body = JSON.parse(req.body.data);
+    }
+    return next();
+  });
+};
+
+module.exports = { findMany, findOneById, createOne, updateOneById, removeOneById, uploadAssets, uploadCv };

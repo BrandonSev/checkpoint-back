@@ -25,7 +25,7 @@ const createOne = async (req, res) => {
     const [result] = await Like.createOne(req.newLike);
     const [[like]] = await Like.findOneById(result.insertId);
     return res.status(201).json({
-      like: like,
+      like,
     });
   } catch (err) {
     return res.status(500).send(err.message);

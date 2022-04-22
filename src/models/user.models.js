@@ -11,6 +11,11 @@ class User {
     return connection.promise().query(sql, [id]);
   }
 
+  static findOneByEmail(email) {
+    const sql = "SELECT * FROM users WHERE email = ?";
+    return connection.promise().query(sql, [email]);
+  }
+
   static createOne(users) {
     const sql = "INSERT INTO users SET ?";
     return connection.promise().query(sql, [users]);
