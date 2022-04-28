@@ -1,11 +1,19 @@
 /* eslint-disable no-console */
 require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
 
 const app = express();
+const http = require("http");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+
+const server = http.createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: process.env.CLIENT_ORIGIN,
+  },
+});
 const mainRouter = require("./src/routes");
 const { connection } = require("./db-connection");
 
@@ -34,7 +42,46 @@ app.use("/verifyToken", (req, res) => {
 // Prefix all routes with /api
 app.use("/api", mainRouter);
 
-app.listen(process.env.PORT || 8000, (err) => {
+let users = [];
+
+const addUser = (userId, socketId) => {
+  if (!users.some((user) => user.userId === userId)) {
+    users.push({ userId, socketId });
+  }
+};
+
+const removeUser = (socketId) => {
+  users = users.filter((user) => user.socketId !== socketId);
+};
+
+const getUser = (userId) => {
+  return users.find((user) => user.userId === userId);
+};
+
+io.on("connection", (socket) => {
+  console.log("user connected", socket.id);
+  socket.on("newUser", (userId) => {
+    addUser(userId, socket.id);
+    io.emit("getUsers", users);
+  });
+  socket.on("sendMessage", ({ owner_id, receiver_id, message }) => {
+    const user = getUser(...receiver_id);
+    if (user) {
+      io.to(user.socketId).emit("getMessage", {
+        owner_id,
+        ...receiver_id,
+        message,
+      });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    removeUser(socket.id);
+    io.emit("getUsers", users);
+  });
+});
+
+server.listen(process.env.PORT || 8000, (err) => {
   if (err) return console.log(err.message);
   console.log(`La connexion au serveur a réussi: http://localhost:${process.env.PORT || 8000}`);
   // Test connexion to MYSQL DB
